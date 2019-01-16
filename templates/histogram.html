@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+
+{% block body %}
+    <!-- col-lg-6 means that it will be stacked from the smallest
+     screens up to the beggining of large screens. From that point
+     there will be two columns of equal width-->
+    <div class="col-lg-7">
+        <img src="{{histFile}}" class="img-fluid" alt="Histogram">
+        <a href="{{histFile}}" download>
+	        <button class="btn btn-success">Descargar</button>
+        </a>
+    </div>
+    <div class="col-lg-4">
+        <form action="/histogram" enctype="multipart/form-data" method="post">
+            <div class="form-group">
+                <label for="dataFileInput">Archivo de datos</label>
+                <input class="form-control-file" id="dataFileInput" name="fileName" type="file" required>
+            </div>
+            <label for="optionalSettings" class="font-weight-bold">Parámetros opcionales:</label>
+            <div class="border border-secondary rounded">
+                <div class="form-group" id="optionalSettings">
+                    <label for="nIntervalosInput">Número de intervalos</label>
+                    <input class="form-control form-control-sm" id="nIntervalosInput" min="1" name="nIntervals" type="number" >
+                </div>
+                <div class="form-group">
+                    <label for="xLabelInput">Nombre eje x</label>
+                    <input class="form-control form-control-sm" id="xLabelInput" name="xLabel" type="text" >
+                </div>
+                <div class="form-group">
+                    <label for="yLabelInput">Nombre eje y</label>
+                    <input class="form-control form-control-sm" id="yLabelInput" name="yLabel" type="text" >
+                </div>
+            </div>
+            <button class="btn btn-primary" type="submit" id="submitButton">Aplicar</button>
+        </form>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        {% for message in messages["Error"] %}
+            <div class="alert alert-danger" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+        {% for message in messages["Warning"] %}
+            <div class="alert alert-warning" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+        {% for message in messages["Success"] %}
+            <div class="alert alert-success" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+        {% for message in messages["Info"] %}
+            <div class="alert alert-primary" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}
