@@ -2,11 +2,14 @@
 import re
 from flask import Flask, abort, redirect, render_template, request, send_file
 from html import escape
-from io import TextIOWrapper
 from io import BytesIO
+import base64 #library to encode bynary strings to base64
 from werkzeug.exceptions import default_exceptions, HTTPException
 # from werkzeug.utils import secure_filename
-import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
+from matplotlib import pyplot as plt
+
 from math import sqrt, floor
 
 
@@ -89,20 +92,15 @@ def histogram():
             yLabel = request.form.get("yLabel")
 
         histFileName = f"static/histograms/Histograma{numHist}.png"
-        plotHistogram(data, nIntervals, histFileName, xLabel, yLabel)
-        bytesStream = BytesIO()
-        plt.savefig(bytesStream)
-        ############################################## Debugging here #####################################
-        print("Here")
-        return send_file(bytesStream,
-                         attachment_filename='histogram.png',
-                         mimetype='image/png')
+        histogramData = plotHistogram(data, nIntervals, histFileName, xLabel, yLabel)
+        
+        # return render_template("index.html")
         # # message += "\n Histograma creado con éxito"
         # # Add one to the histograms counter
         # numHist = numHist + 1
 
         # # Output histogram
-        # return render_template("histogram.html", histFile = histFileName, messages = messages)
+        return render_template("histogram.html", histFile = histogramData, messages = messages)
     # If user reached route via GET
     else:
         return render_template("histogram.html", histFile = "static/histograms/placeholder.png", messages = messages)
@@ -112,8 +110,18 @@ def plotHistogram(data, nIntervals, fileName, xLabel, yLabel):
 
     plt.xlabel(xLabel)
     plt.ylabel(yLabel)
-    plt.savefig(fileName)
+    # plt.savefig(fileName)
+    bytesStream = BytesIO()
+    # f = open("myfile.png", "wb")
+    plt.savefig(bytesStream, format='png')
+    # print(bytesStream.getvalue())
+    ############################################## Debugging here #####################################
+    # print("Here")
+    # bytesStream.close()
     plt.close()
+    base64Histogram = "data:image/png;base64," + base64.b64encode(bytesStream.getvalue()).decode()
+    # print(base64Histogram)
+    return base64Histogram
 
 
 
@@ -169,4 +177,9 @@ if __name__ == '__main__':
     # the "static" directory. See:
     # http://flask.pocoo.org/docs/1.0/quickstart/#static-files. Once deployed,
     # App Engine itself will serve those files as configured in app.yaml.
+    
+    # ssl_context = 'adhoc' is used to serve the application over https
+    # without having to mess with certificates. Requires the installation of
+    # pyopenssl
+    # app.run(host='127.0.0.1', port=8080, debug=True, ssl_context='adhoc')
     app.run(host='127.0.0.1', port=8080, debug=True)
